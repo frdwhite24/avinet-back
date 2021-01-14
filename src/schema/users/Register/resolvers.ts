@@ -11,7 +11,7 @@ import { isError } from "../../../utils/typeGuards";
 import {
   userExistsError,
   incorrectPasswordError,
-  missingUserError,
+  missingDocError,
   mutationFailedError,
   notAuthorisedError,
   passwordTooShortError,
@@ -33,7 +33,7 @@ export class UserRegisterResolver {
   async getUser(@Arg("username") username: string) {
     // TODO: Add auth which requires admin role to carry out this query
     const user = await getUser(username);
-    if (!user) return missingUserError();
+    if (!user) return missingDocError("User");
     return {
       user,
     };
@@ -71,13 +71,20 @@ export class UserRegisterResolver {
             errors: [{ type: "user error", message: error.message }],
           };
         } else {
-          return mutationFailedError("user");
+          return mutationFailedError("User");
         }
       }
     }
 
+    const userForToken = {
+      username: user.username,
+      id: user._id.toString(),
+    };
+    const token = sign(userForToken, JWT_SECRET);
+
     return {
       user,
+      token,
     };
   }
 
@@ -89,7 +96,7 @@ export class UserRegisterResolver {
     if (!currentUser) return notAuthorisedError();
 
     const userToDelete = await getUser(username);
-    if (!userToDelete) return missingUserError();
+    if (!userToDelete) return missingDocError("User");
 
     if (userToDelete.username !== currentUser.username)
       return notAuthorisedError();
@@ -103,7 +110,7 @@ export class UserRegisterResolver {
             errors: [{ type: "user error", message: error.message }],
           };
         } else {
-          return mutationFailedError("user");
+          return mutationFailedError("User");
         }
       }
     }
@@ -119,7 +126,7 @@ export class UserRegisterResolver {
     @Arg("password") password: string
   ) {
     const user = await getUser(username);
-    if (!user) return missingUserError();
+    if (!user) return missingDocError("User");
 
     const valid = await passwordVerify(user.password, password);
     if (!valid) return incorrectPasswordError();
@@ -142,7 +149,7 @@ export class UserRegisterResolver {
     if (!currentUser) return notAuthorisedError();
 
     const userToUpdate = await getUser(username);
-    if (!userToUpdate) return missingUserError();
+    if (!userToUpdate) return missingDocError("User");
 
     if (userToUpdate.username !== currentUser.username)
       return notAuthorisedError();
@@ -161,7 +168,7 @@ export class UserRegisterResolver {
             errors: [{ type: "user error", message: error.message }],
           };
         } else {
-          return mutationFailedError("user");
+          return mutationFailedError("User");
         }
       }
     }
@@ -180,7 +187,7 @@ export class UserRegisterResolver {
     if (!currentUser) return notAuthorisedError();
 
     const userToUpdate = await getUser(username);
-    if (!userToUpdate) return missingUserError();
+    if (!userToUpdate) return missingDocError("User");
 
     if (userToUpdate.username !== currentUser.username)
       return notAuthorisedError();
@@ -196,7 +203,7 @@ export class UserRegisterResolver {
             errors: [{ type: "user error", message: error.message }],
           };
         } else {
-          return mutationFailedError("user");
+          return mutationFailedError("User");
         }
       }
     }
@@ -241,12 +248,12 @@ export class UserRegisterResolver {
             errors: [{ type: "user error", message: error.message }],
           };
         } else {
-          return mutationFailedError("user");
+          return mutationFailedError("User");
         }
       }
     }
 
-    if (!updatedUser) return mutationFailedError("user");
+    if (!updatedUser) return mutationFailedError("User");
 
     return { user: updatedUser };
   }

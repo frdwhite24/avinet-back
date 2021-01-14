@@ -7,7 +7,7 @@ import { isError } from "../../../utils/typeGuards";
 import {
   alreadyFollowingError,
   missingFollowerError,
-  missingUserError,
+  missingDocError,
   mutationFailedError,
   notAuthorisedError,
   notFollowingError,
@@ -22,7 +22,7 @@ export class UserSocialResolvers {
     if (!currentUser) return notAuthorisedError();
 
     const user = await getUser(currentUser.username);
-    if (!user) return missingUserError();
+    if (!user) return missingDocError("User");
 
     return {
       users: user.followers,
@@ -34,7 +34,7 @@ export class UserSocialResolvers {
     if (!currentUser) return notAuthorisedError();
 
     const user = await getUser(currentUser.username);
-    if (!user) return missingUserError();
+    if (!user) return missingDocError("User");
 
     return {
       users: user.following,
@@ -50,7 +50,7 @@ export class UserSocialResolvers {
     if (currentUser.username === username) return notToSelfError();
 
     const userToFollow = await getUser(username, false);
-    if (!userToFollow) return missingUserError();
+    if (!userToFollow) return missingDocError("User");
 
     if (
       userToFollow.followers?.find((follower) => {
@@ -75,7 +75,7 @@ export class UserSocialResolvers {
             errors: [{ type: "user error", message: error.message }],
           };
         } else {
-          return mutationFailedError("user");
+          return mutationFailedError("User");
         }
       }
     }
@@ -85,7 +85,7 @@ export class UserSocialResolvers {
     // must be carried out to send in the response
     // TODO: Find a better way to do this rather than carry out extra DB query
     const newUserFollowing = await getUser(currentUser.username);
-    if (!newUserFollowing) return missingUserError();
+    if (!newUserFollowing) return missingDocError("User");
 
     return {
       user: newUserFollowing,
@@ -101,11 +101,11 @@ export class UserSocialResolvers {
     if (currentUser.username === username) return notToSelfError();
 
     const userToUnfollow = await getUser(username, false);
-    if (!userToUnfollow) return missingUserError();
+    if (!userToUnfollow) return missingDocError("User");
 
     // TODO: clean up this find block
     if (
-      !userToUnfollow.followers.find((follower) => {
+      !userToUnfollow.followers?.find((follower) => {
         if (!follower) {
           return;
         }
@@ -141,7 +141,7 @@ export class UserSocialResolvers {
             errors: [{ type: "user error", message: error.message }],
           };
         } else {
-          return mutationFailedError("user");
+          return mutationFailedError("User");
         }
       }
     }
@@ -151,7 +151,7 @@ export class UserSocialResolvers {
     // must be carried out to send in the response object
     // TODO: Find a better way to do this rather than carry out extra DB query
     const updatedCurrentUser = await getUser(currentUser.username);
-    if (!updatedCurrentUser) return missingUserError();
+    if (!updatedCurrentUser) return missingDocError("User");
 
     return {
       user: updatedCurrentUser,
@@ -167,7 +167,7 @@ export class UserSocialResolvers {
     if (currentUser.username === username) return notToSelfError();
 
     const userToRemove = await getUser(username, false);
-    if (!userToRemove) return missingUserError();
+    if (!userToRemove) return missingDocError("User");
 
     // TODO: clean up this find block
     if (
@@ -207,7 +207,7 @@ export class UserSocialResolvers {
             errors: [{ type: "user error", message: error.message }],
           };
         } else {
-          return mutationFailedError("user");
+          return mutationFailedError("User");
         }
       }
     }
@@ -217,7 +217,7 @@ export class UserSocialResolvers {
     // must be carried out to send in the response object
     // TODO: Find a better way to do this rather than carry out extra DB query
     const updatedCurrentUser = await getUser(currentUser.username);
-    if (!updatedCurrentUser) return missingUserError();
+    if (!updatedCurrentUser) return missingDocError("User");
 
     return {
       user: updatedCurrentUser,

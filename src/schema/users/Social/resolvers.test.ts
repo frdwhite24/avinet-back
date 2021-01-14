@@ -1,6 +1,6 @@
 import { connect, disconnect } from "../../../database";
 import { graphqlRequest } from "../../../test-utils/graphqlRequest";
-import { generateUsers } from "../../../test-utils/userGen";
+import { generateUsers } from "../../../test-utils/generators";
 import { UserModel } from "../model";
 
 beforeAll(async () => {

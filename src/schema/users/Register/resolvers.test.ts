@@ -3,7 +3,7 @@ import { verify as passwordVerify } from "argon2";
 import { verify } from "jsonwebtoken";
 import { connect, disconnect } from "../../../database";
 import { graphqlRequest } from "../../../test-utils/graphqlRequest";
-import { generateUsers } from "../../../test-utils/userGen";
+import { generateUsers } from "../../../test-utils/generators";
 import { MyToken } from "../../../types";
 import { JWT_SECRET, MIN_PASSWORD_LENGTH } from "../../../utils/config";
 import { User, UserModel } from "../model";
@@ -197,6 +197,42 @@ describe("User register resolvers", () => {
     const dbUser = await UserModel.findOne({ username: user.username });
     expect(dbUser).toBeDefined();
     expect(dbUser?.username).toEqual(user.username);
+  });
+
+  test("mutation create user returns valid token", async () => {
+    const user = {
+      username: faker.internet.userName(),
+      password: faker.internet.password(),
+    };
+
+    // Request
+    const createUser = `
+      mutation createUser(
+        $username: String!
+        $password: String!
+        ) {
+        createUser(username: $username, password: $password) {
+          token
+        }
+      }
+    `;
+
+    const response = await graphqlRequest({
+      source: createUser,
+      variableValues: { username: user.username, password: user.password },
+    });
+
+    // Response check
+    // eslint-disable-next-line @typescript-eslint/no-unsafe-assignment, @typescript-eslint/no-unsafe-member-access
+    const token = response.data?.createUser.token as string;
+    const decodedToken = verify(token, JWT_SECRET) as MyToken;
+
+    const createdUser = decodedToken
+      ? await UserModel.findById(decodedToken.id)
+      : null;
+
+    expect(createdUser).not.toBeNull();
+    expect(createdUser?.username).toBe(user.username);
   });
 
   test("mutation create user fails with existing user", async () => {

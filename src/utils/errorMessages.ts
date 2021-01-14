@@ -23,12 +23,12 @@ export const missingInvalidTokenError = () => {
   };
 };
 
-export const missingUserError = () => {
+export const missingDocError = (docName: string) => {
   return {
     errors: [
       {
-        type: "user error",
-        message: "User doesn't exist.",
+        type: `${docName} error`,
+        message: `${docName} doesn't exist.`,
       },
     ],
   };
@@ -114,5 +114,11 @@ export const notToSelfError = () => {
         message: "Cannot carry out this action on yourself.",
       },
     ],
+  };
+};
+
+export const invalidDate = () => {
+  return {
+    errors: [{ type: "date error", message: "Invalid date value provided." }],
   };
 };
