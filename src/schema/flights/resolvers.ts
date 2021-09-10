@@ -66,13 +66,16 @@ export class FlightResolvers {
       title,
     });
 
+    currentUser.flights.push(newFlight._id);
+
     try {
       await newFlight.save();
+      await currentUser.save();
     } catch (error) {
       if (isError(error)) {
         if (process.env.NODE_ENV !== "production") {
           return {
-            errors: [{ type: "user error", message: error.message }],
+            errors: [{ type: "flight error", message: error.message }],
           };
         } else {
           return mutationFailedError("flight");

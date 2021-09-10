@@ -1,6 +1,7 @@
 import { prop, getModelForClass, Ref } from "@typegoose/typegoose";
 import mongoose from "mongoose";
 import { Field, ID, ObjectType } from "type-graphql";
+import { Flight } from "../flights/model";
 
 @ObjectType()
 export class User {
@@ -33,6 +34,12 @@ export class User {
   @Field(() => [User], { nullable: true })
   @prop({ ref: User, default: [] })
   public followers!: Ref<User>[];
+
+  // https://typegoose.github.io/typegoose/docs/guides/advanced/reference-other-classes#common-problems
+  // Hardcoding model name not recommended but first fix did not work
+  @Field(() => [Flight], { nullable: true })
+  @prop({ ref: "Flight", default: [] })
+  public flights!: Ref<Flight>[];
 }
 
 export const UserModel = getModelForClass(User);

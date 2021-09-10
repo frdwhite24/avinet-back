@@ -53,3 +53,5 @@ _(Prioritise the below list)_
 - ?? A user can record their flights using GPS on their phone or by uploading
   the correct file and then can see the route on an embedded map for each
   flight ??
+- Notifications for users if someone follows them or likes/comments on a flight. Implement the structure for this.
+- Mark favourites/starred locations for easy future use in the saving of flights. i.e. Pluckley Wood for routes out of Headcorn.
